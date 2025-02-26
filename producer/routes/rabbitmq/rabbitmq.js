@@ -21,12 +21,20 @@ module.exports = async function (fastify) {
     Promise.all([
       // @ts-ignore
       fastify.rabbitmqPublisher.send(
-        { exchange: process.env.RABBITMQ_EXCHANGE, routingKey: "users" },
+        {
+          exchange: process.env.RABBITMQ_EXCHANGE,
+          routingKey: "users",
+          durable: true,
+        },
         fakeUser
       ),
       // @ts-ignore
       fastify.rabbitmqPublisher.send(
-        { exchange: process.env.RABBITMQ_EXCHANGE, routingKey: "countries" },
+        {
+          exchange: process.env.RABBITMQ_EXCHANGE,
+          routingKey: "countries",
+          durable: true,
+        },
         fakeCountry
       ),
     ]);
