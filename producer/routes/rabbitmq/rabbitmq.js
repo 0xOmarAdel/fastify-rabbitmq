@@ -18,7 +18,7 @@ module.exports = async function (fastify) {
       city: faker.location.city(),
     };
 
-    await Promise.all([
+    Promise.all([
       // @ts-ignore
       fastify.rabbitmqPublisher.send(
         { exchange: process.env.RABBITMQ_EXCHANGE, routingKey: "users" },
