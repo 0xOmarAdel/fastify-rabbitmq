@@ -22,16 +22,6 @@ module.exports = fp(
     });
 
     fastify.ready().then(async () => {
-      const dlxPublisher = fastify.rabbitmq.createPublisher({
-        exchanges: [
-          {
-            exchange: "dlx.consumer-1",
-            type: "direct",
-            durable: true,
-          },
-        ],
-      });
-
       const dlxConsumer = fastify.rabbitmq.createConsumer(
         {
           queue: "dlq.consumer-1",
@@ -45,8 +35,6 @@ module.exports = fp(
           fastify.log.warn(
             `DLQ message received: ${JSON.stringify(msg, null, 2)}`
           );
-
-          return true;
         }
       );
 
@@ -70,11 +58,8 @@ module.exports = fp(
             fastify.log.info(
               `Received message: ${JSON.stringify(msg, null, 2)}`
             );
-
-            return true;
           } catch (error) {
             fastify.log.error(`Error processing message: ${error.message}`);
-            return false;
           }
         }
       );
