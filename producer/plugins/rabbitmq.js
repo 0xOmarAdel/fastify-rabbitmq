@@ -46,27 +46,43 @@ module.exports = fp(
           );
           return Promise.resolve();
         }
-        return realPublisher
-        // @ts-ignore
-          .send(...args)
-          .then(() =>
-            fastify.log.info(
-              `Message sent to RabbitMQ: ${JSON.stringify(args, null, 2)}`
+        return (
+          realPublisher
+            // @ts-ignore
+            .send(...args)
+            .then(() =>
+              fastify.log.info(
+                `Message sent to RabbitMQ: ${JSON.stringify(args, null, 2)}`
+              )
             )
-          )
-          .catch((err) => {
-            fastify.log.error(
-              `RabbitMQ send error: ${JSON.stringify(
-                err,
-                null,
-                2
-              )}, ${JSON.stringify(args, null, 2)}`
-            );
-          });
+            .catch((err) => {
+              fastify.log.error(
+                `RabbitMQ send error: ${JSON.stringify(
+                  err,
+                  null,
+                  2
+                )}, ${JSON.stringify(args, null, 2)}`
+              );
+            })
+        );
       },
     };
 
     fastify.decorate("rabbitmqPublisher", publisher);
+
+    fastify.addHook("onClose", async (instance, done) => {
+      try {
+        fastify.log.info("Closing RabbitMQ connection...");
+        await fastify.rabbitmq.close();
+        fastify.log.info("RabbitMQ connection closed successfully");
+        done();
+      } catch (error) {
+        fastify.log.error(
+          `Error closing RabbitMQ connection: ${error.message}`
+        );
+        done(error);
+      }
+    });
   },
   { name: "rabbitmq" }
 );
